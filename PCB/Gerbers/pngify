@@ -1,0 +1,5 @@
+#!/bin/bash
+for i in DorMouse.{G??,TXT}; do
+    echo $i
+    gerbv $i --export=png -o $i.png -D 600
+done
