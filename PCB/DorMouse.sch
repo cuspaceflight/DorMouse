@@ -10775,9 +10775,9 @@ http://docs-europe.electrocomponents.com/webdocs/0dbd/0900766b80dbde80.pdf</desc
 <part name="SUPPLY29" library="supply2" deviceset="GND" device=""/>
 <part name="S1" library="SparkFun" deviceset="TAC_SWITCH" device="SMD"/>
 <part name="S2" library="SparkFun" deviceset="TAC_SWITCH" device="SMD"/>
-<part name="GPS-LED" library="DorMouse" deviceset="RED-GREEN_LED" device=""/>
-<part name="SD-LED" library="DorMouse" deviceset="RED-GREEN_LED" device=""/>
-<part name="GENERAL" library="DorMouse" deviceset="RED-GREEN_LED" device=""/>
+<part name="GPS-LED" library="DorMouse" deviceset="RED-GREEN_LED" device="" value="GPS"/>
+<part name="SD-LED" library="DorMouse" deviceset="RED-GREEN_LED" device="" value="SD-C"/>
+<part name="GENERAL" library="DorMouse" deviceset="RED-GREEN_LED" device="" value="Status"/>
 <part name="SUPPLY30" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY31" library="supply2" deviceset="GND" device=""/>
 <part name="R9" library="rcl" deviceset="R-EU_" device="R0402" value="160"/>
@@ -10804,7 +10804,7 @@ http://docs-europe.electrocomponents.com/webdocs/0dbd/0900766b80dbde80.pdf</desc
 <part name="C11" library="rcl" deviceset="C-EU" device="C0402" value="0.01uF"/>
 <part name="C12" library="rcl" deviceset="C-EU" device="C0402" value="0.01uF"/>
 <part name="SUPPLY37" library="supply2" deviceset="GND" device=""/>
-<part name="CHRG" library="led" deviceset="LED" device="CHIPLED_0603"/>
+<part name="CHRG" library="led" deviceset="LED" device="CHIPLED_0603" value="CHRG"/>
 <part name="R6" library="rcl" deviceset="R-EU_" device="R0402" value="160"/>
 <part name="SUPPLY38" library="supply2" deviceset="GND" device=""/>
 <part name="R7" library="rcl" deviceset="R-EU_" device="R0402" value="10k"/>
