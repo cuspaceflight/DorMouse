@@ -1,0 +1,12 @@
+src/*.d
+src/*.o
+sd_lib/*.d
+sd_lib/*.o
+dormouse.bin
+dormouse.elf
+dormouse.hex
+dormouse.srec
+dormouse.map
+dormouse.list
+dormouse.sizes
+*.swp
