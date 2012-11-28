@@ -5,7 +5,7 @@
  * write a decent SDIO driver for libopencm3. */
 
 /* src -> glue */
-#include "sd.h"
+#include "sd_lib.h"
 
 /* SDIO Driver -> STM32 glue */
 void SD_LowLevel_DeInit(void);
@@ -30,6 +30,5 @@ void SD_LowLevel_DMA_RxConfig(uint32_t *BufferDST, uint32_t BufferSize);
 uint32_t SD_DMAEndOfTransferStatus(void);
 
 /* STM32 glue -> OCM3 glue */
-void sd_setup_ocm3();
 void SD_LowLevel_DeInit_ocm3(void);
 

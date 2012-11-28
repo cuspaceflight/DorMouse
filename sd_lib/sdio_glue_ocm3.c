@@ -12,7 +12,7 @@
 /* Need to keep this separate from files that include libstm32 stuff,
  * since really bad things/conflicts happen otherwise */
 
-void sd_setup_ocm3()
+void sd_hw_setup()
 {
     dma_channel_reset(DMA2, 1);
 

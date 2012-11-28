@@ -103,6 +103,7 @@ clean:
 	rm -f $(BINARY).srec
 	rm -f $(BINARY).list
 	rm -f $(BINARY).map
+	rm -f $(BINARY).sizes
 
 ifeq ($(STLINK_PORT),)
 ifeq ($(BMP_PORT),)
