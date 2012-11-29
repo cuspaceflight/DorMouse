@@ -73,7 +73,7 @@ void baro_init()
     timer_set_period(TIM4, 5625);
 
     nvic_set_priority(NVIC_TIM4_IRQ, 16 * 2);
-    nvic_set_priority(NVIC_DMA1_CHANNEL4_IRQ, 16 * 6);
+    nvic_set_priority(NVIC_DMA1_CHANNEL4_IRQ, 16 * 2);
     nvic_enable_irq(NVIC_TIM4_IRQ);
     nvic_enable_irq(NVIC_DMA1_CHANNEL4_IRQ);
 

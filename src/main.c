@@ -13,12 +13,14 @@
  * baro: GPIOB, SPI2, TIM4, DMA1:3, DMA1:4
  * accel_highg: ADC1..3 TIM1 */
 
-/* accel_lowg: tim3_isr, spi1_isr, dma1_channel2_isr: priority 16 * 6 */
-/* baro: tim4_isr, dma1_channel4_isr: priority 16 * 2 */
+/* accel_lowg: tim3_isr, spi1_isr, dma1_channel2_isr: priority 16 * 6
+ * baro: tim4_isr, dma1_channel4_isr: priority 16 * 2
+ * accel_highg: dma1_channel5_isr, dma1_channel6_isr: priority 16 * 7 */
 
-/* sd: DMA2:1 - high priority */
-/* accel_lowg: DMA1:1, DMA1:2 - high priority */
-/* baro: DMA1:3 DMA1:4 - very high priority */
+/* sd: DMA2:1 - high priority
+ * accel_lowg: DMA1:1, DMA1:2 - high priority
+ * baro: DMA1:3 DMA1:4 - very high priority
+ * accel_highg: DMA1:5 DMA1:6 - high priority */
 
 /* TODO: check dma error flags! */
 

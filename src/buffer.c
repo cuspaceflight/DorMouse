@@ -139,8 +139,10 @@ void buffer_simple_push(struct buffer_simple_push *settings, const char *data)
     memcpy(settings->buffer->buf + settings->pos, data, settings->length);
     settings->pos += settings->length;
 
-    if (settings->length > sd_block_size)
+    if (settings->pos + settings->length > sd_block_size)
     {
+        memset(settings->buffer->buf + settings->pos, 0, 
+                sd_block_size - settings->pos);
         buffer_queue(&(settings->buffer));
         cm3_assert(settings->buffer == NULL);
     }

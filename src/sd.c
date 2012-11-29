@@ -123,7 +123,13 @@ static int is_block_used(uint32_t address, int *is_used)
 
 static void fail_backoff(int status)
 {
-    status = status;
+    int i;
+
+    /* Sleep for a bit */
+    for (i = 0; i < 18000000; i++)
+        asm volatile ("nop");
+
     /* TODO */
+    status = status;
 }
 
