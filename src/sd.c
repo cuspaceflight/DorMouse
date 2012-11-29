@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include "../sd_lib/sd_lib.h"
-#include "sd_buffer.h"
+#include "buffer.h"
 
 static void fail_backoff(int status);
 static int find_unused_block(uint32_t *first_address);
@@ -18,7 +18,7 @@ void sd_main()
 {
     int status = 0;
     uint32_t address = 0;
-    char *block;
+    struct buffer_list_item *item;
 
     sd_hw_setup();
 
@@ -32,14 +32,19 @@ reset:
 
     while (1)
     {
-        sd_buffer_out_get(&block);
+        buffer_pop(&item);
+        status = sd_write(address, item->buf, sd_block_size);
 
-        status = sd_write(address, block, sd_block_size);
-        if (status != 0) goto bail;
-
-        sd_buffer_out_done();
-
-        address += sd_block_size;
+        if (status != 0)
+        {
+            buffer_unpop(&item);
+            goto bail;
+        }
+        else
+        {
+            buffer_free(&item);
+            address += sd_block_size;
+        }
     }
 
 bail:
