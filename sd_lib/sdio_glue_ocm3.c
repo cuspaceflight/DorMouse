@@ -54,8 +54,9 @@ void SD_LowLevel_Init(void)
 
     /* SD Data 0..3 CLK; CMD */
     gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
-                    GPIO_CNF_OUTPUT_PUSHPULL, 0x1f00);
-    gpio_set_mode(GPIOD, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO2);
+                    GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, 0x1f00);
+    gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_50_MHZ,
+                    GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO2);
 }
 
 void SD_LowLevel_DMA_TxConfig(uint32_t *BufferSRC, uint32_t BufferSize)
