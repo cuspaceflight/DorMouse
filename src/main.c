@@ -4,10 +4,11 @@
 #include "buffer.h"
 #include "leds.h"
 #include "general_status.h"
+#include "accel_lowg.h"
 
 /* SD Card: DMA2:1, SDIO, GPIOC, GPIOD
  * LEDs: TIM2, GPIOA, GPIOB, GPIOC
- * Low G Accel: GPIOA, DMA1:1, DMA1:2 */
+ * Low G Accel: GPIOA, DMA1:1, DMA1:2, TIM3 */
 
 int main()
 {
@@ -26,6 +27,9 @@ int main()
     buffer_init();
     leds_init();
     general_status_init();
+    accel_lowg_init();
+
+    accel_lowg_go();
 
     /* sd_main will do sd init stuff */
     sd_main();

@@ -7,6 +7,7 @@
 #include <libopencm3/cm3/assert.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/f1/nvic.h>
 #include <libopencm3/stm32/f1/dma.h>
 
@@ -65,6 +66,15 @@ void accel_lowg_init()
     dma_set_priority(DMA1, DMA_CHANNEL2, DMA_CCR_PL_HIGH);
     dma_enable_transfer_complete_interrupt(DMA1, DMA_CHANNEL2);
 
+    timer_reset(TIM3);
+    timer_enable_irq(TIM3, TIM_DIER_UIE);
+    timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT,
+            TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+    /* 3200 / 16 = 200 Hz */
+    timer_set_prescaler(TIM3, 64);
+    timer_set_period(TIM3, 5625);
+
+    nvic_enable_irq(NVIC_TIM3_IRQ);
     nvic_enable_irq(NVIC_SDIO_IRQ);
     nvic_enable_irq(NVIC_DMA1_CHANNEL2_IRQ);
 
@@ -73,9 +83,19 @@ void accel_lowg_init()
 
     /* FIFO_CTL: FIFO mode (D6) */
     write_register_blocking(0x38, (1 << 6));
+
+    /* BW_RATE: 3200Hz */
+    write_register_blocking(0x2C, 0xf);
 }
 
-void accel_lowg_read()
+void accel_lowg_go()
+{
+    /* POWER_CTL: Measure on */
+    write_register_blocking(0x2D, (1 << 3));
+    timer_enable_counter(TIM3);
+}
+
+void tim3_isr()
 {
     cm3_assert(read_state == ALG_RS_NONE);
     assert_idle();
