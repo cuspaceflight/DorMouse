@@ -111,17 +111,13 @@ static int is_block_used(uint32_t address, int *is_used)
 {
     static char buf[sd_block_size];
 
-    int status, used, i;
+    int status;
 
-    /* Is this block used? Atleast one header value will be nonzero */
+    /* Is this block used? First header byte will be nonzero */
     status = sd_read(address, buf, sd_block_size);
     if (status != 0) return status;
 
-    used = 0;
-    for (i = 0; i < sd_header_size; i++)
-        used |= buf[i];
-
-    *is_used = (used != 0);
+    *is_used = (buf[0] != 0);
     return 0;
 }
 

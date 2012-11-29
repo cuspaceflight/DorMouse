@@ -12,10 +12,7 @@
 
 void sd_hw_setup()
 {
-    dma_channel_reset(DMA2, 1);
-
     dma_set_peripheral_address(DMA2, DMA_CHANNEL1, (uint32_t) 0x40005410);
-    dma_set_read_from_memory(DMA2, DMA_CHANNEL1);
     dma_enable_memory_increment_mode(DMA2, DMA_CHANNEL1);
     dma_set_peripheral_size(DMA2, DMA_CHANNEL1, DMA_CCR_PSIZE_32BIT);
     dma_set_memory_size(DMA2, DMA_CHANNEL1, DMA_CCR_MSIZE_32BIT);
