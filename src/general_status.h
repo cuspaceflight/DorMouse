@@ -2,9 +2,9 @@ enum bad_thing
 {
     NO_BAD_THINGS = 0,
 
-    BAROMETER_FAIL = 1,
-    HIGH_G_ACCEL_FAIL = 2,
-    LOW_G_ACCEL_FAIL = 3,
+    BARO_FAIL = 1,
+    ACCEL_HIGHG_ACCEL_FAIL = 2,
+    ACCEL_LOWG_ACCEL_FAIL = 3,
     BUFFER_HALF_FULL = 4,
     BUFFER_OVERFLOW = 5,
 

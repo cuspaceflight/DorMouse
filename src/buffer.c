@@ -2,8 +2,10 @@
 
 #include <stdlib.h>
 #include <libopencm3/cm3/assert.h>
+
 #include "sd.h"
 #include "memory.h"
+#include "header.h"
 
 #define block_count 100
 
@@ -123,6 +125,25 @@ void buffer_unpop(struct buffer_list_item **item)
     list_push_head(&items_free, item);
     memory_barrier();
     enable_interrupts();
+}
+
+void buffer_simple_push(struct buffer_simple_push *settings, const char *data)
+{
+    if (settings->buffer == NULL)
+    {
+        buffer_alloc(&(settings->buffer));
+        add_header(settings->buffer->buf, settings->sensor);
+        settings->pos = sizeof(struct data_header);
+    }
+
+    memcpy(settings->buffer->buf + settings->pos, data, settings->length);
+    settings->pos += settings->length;
+
+    if (settings->length > sd_block_size)
+    {
+        buffer_queue(&(settings->buffer));
+        cm3_assert(settings->buffer == NULL);
+    }
 }
 
 static void list_pop_head(struct buffer_list *list,

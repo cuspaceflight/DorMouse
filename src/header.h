@@ -1,9 +1,12 @@
 #include <stdint.h>
 
+#ifndef DORMOUSE_HEADER_H
+#define DORMOUSE_HEADER_H
+
 enum sensor_id
 {
-    ID_ACCEL_LOW_G,
-    ID_ACCEL_HIGH_G,
+    ID_ACCEL_LOWG,
+    ID_ACCEL_HIGHG,
     ID_GPS,
     ID_BARO,
     ID_MISC
@@ -17,3 +20,5 @@ struct data_header
 };
 
 void add_header(char *buf, enum sensor_id sensor_id);
+
+#endif /* DORMOUSE_HEADER_H */

@@ -6,9 +6,19 @@
 #include "general_status.h"
 #include "accel_lowg.h"
 
-/* SD Card: DMA2:1, SDIO, GPIOC, GPIOD
- * LEDs: TIM2, GPIOA, GPIOB, GPIOC
- * Low G Accel: GPIOA, DMA1:1, DMA1:2, TIM3 */
+/* sd: DMA2:1, SDIO, GPIOC, GPIOD
+ * leds: TIM2, GPIOA, GPIOB, GPIOC
+ * accel_lowg: GPIOA, DMA1:1, DMA1:2, SPI1, TIM3
+ * baro: GPIOB, SPI2, TIM4, DMA1:3, DMA1:4 */
+
+/* accel_lowg: tim3_isr, spi1_isr, dma1_channel2_isr: priority 16 * 6 */
+/* baro: tim4_isr, dma1_channel4_isr: priority 16 * 2 */
+
+/* sd: DMA2:1 - high priority */
+/* accel_lowg: DMA1:1, DMA1:2 - high priority */
+/* baro: DMA1:3 DMA1:4 - very high priority */
+
+/* TODO: check dma error flags! */
 
 int main()
 {
@@ -18,7 +28,7 @@ int main()
     rcc_peripheral_enable_clock(&RCC_AHBENR,
             RCC_AHBENR_SDIOEN | RCC_AHBENR_DMA1EN | RCC_AHBENR_DMA2EN);
     rcc_peripheral_enable_clock(&RCC_APB1ENR,
-            RCC_APB1ENR_TIM2EN);
+            RCC_APB1ENR_TIM2EN | RCC_APB1ENR_SPI2EN);
     rcc_peripheral_enable_clock(&RCC_APB2ENR,
             RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN |
             RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN |

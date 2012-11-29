@@ -13,13 +13,13 @@
 
 #include "general_status.h"
 #include "buffer.h"
-#include "header.h"
 
 /* SS PA4, MOSI PA5, MISO PA6, SCK PA7 */
 
 enum accel_lowg_read_state
 {
-    ALG_RS_NONE = 0,
+    ALG_RS_NOT_STARTED = 0,
+    ALG_RS_IDLE,
     ALG_RS_FIFO,
     ALG_RS_DATA,
 };
@@ -29,14 +29,15 @@ static void select_slave();
 static void deselect_slave();
 static void reselect_pulse();
 static void assert_idle();
+static void assert_data();
 static void dma_read_go();
-static void push_accels();
 
 static enum accel_lowg_read_state read_state;
 static char read_txstr[7] = { 0x32 | 0x80 | 0x40 };
 static char read_buffer[7];
-static int fifo_count, buffer_pos;
-static struct buffer_list_item *buffer;
+static int fifo_count;
+static struct buffer_simple_push simple_push =
+        { .length = 6, .sensor = ID_ACCEL_LOWG };
 
 void accel_lowg_init()
 {
@@ -45,7 +46,7 @@ void accel_lowg_init()
             GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO5 | GPIO7);
     gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
             GPIO_CNF_OUTPUT_PUSHPULL, GPIO4);
-    gpio_set(GPIOA, GPIO4);
+    deselect_slave();
 
     spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_8, SPI_CR1_CPOL,
             SPI_CR1_CPHA, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
@@ -74,8 +75,11 @@ void accel_lowg_init()
     timer_set_prescaler(TIM3, 64);
     timer_set_period(TIM3, 5625);
 
+    nvic_set_priority(NVIC_TIM3_IRQ, 16 * 6);
+    nvic_set_priority(NVIC_SPI1_IRQ, 16 * 6);
+    nvic_set_priority(NVIC_DMA1_CHANNEL2_IRQ, 16 * 6);
     nvic_enable_irq(NVIC_TIM3_IRQ);
-    nvic_enable_irq(NVIC_SDIO_IRQ);
+    nvic_enable_irq(NVIC_SPI1_IRQ);
     nvic_enable_irq(NVIC_DMA1_CHANNEL2_IRQ);
 
     /* DATA_FORMAT: FULL_RES | D1 | D0 (16g) */
@@ -92,12 +96,14 @@ void accel_lowg_go()
 {
     /* POWER_CTL: Measure on */
     write_register_blocking(0x2D, (1 << 3));
+
+    read_state = ALG_RS_IDLE;
     timer_enable_counter(TIM3);
 }
 
 void tim3_isr()
 {
-    cm3_assert(read_state == ALG_RS_NONE);
+    cm3_assert(read_state == ALG_RS_IDLE);
     assert_idle();
 
     /* Read register 0x39, await interrupt */
@@ -111,20 +117,23 @@ void spi1_isr()
 {
     cm3_assert(read_state == ALG_RS_FIFO);
 
+    assert_data();
     fifo_count = (spi_read(SPI1) & ((1 << 6) - 1));
     spi_enable_rx_buffer_not_empty_interrupt(SPI1);
 
     if (fifo_count == 0)
     {
-        bad_thing_set(LOW_G_ACCEL_FAIL);
+        read_state = ALG_RS_IDLE;
+
+        bad_thing_set(ACCEL_LOWG_ACCEL_FAIL);
         deselect_slave();
     }
     else
     {
         if (fifo_count > 25)
-            bad_thing_set(LOW_G_ACCEL_FAIL);
+            bad_thing_set(ACCEL_LOWG_ACCEL_FAIL);
         else
-            bad_thing_clear(LOW_G_ACCEL_FAIL);
+            bad_thing_clear(ACCEL_LOWG_ACCEL_FAIL);
 
         read_state = ALG_RS_DATA;
 
@@ -140,10 +149,14 @@ void dma1_channel2_isr()
     cm3_assert(dma_get_interrupt_flag(DMA1, DMA_CHANNEL1, DMA_TCIF));
     assert_idle();
 
-    push_accels();
+    dma_disable_channel(DMA1, DMA_CHANNEL1);
+    dma_disable_channel(DMA1, DMA_CHANNEL2);
+
+    buffer_simple_push(&simple_push, read_buffer + 1);
 
     if (fifo_count == 0)
     {
+        read_state = ALG_RS_IDLE;
         deselect_slave();
     }
     else
@@ -164,16 +177,21 @@ static void dma_read_go()
     dma_set_memory_address(DMA1, DMA_CHANNEL2, (uint32_t) read_buffer);
     dma_set_number_of_data(DMA1, DMA_CHANNEL2, 7);
 
+    spi_enable_tx_dma(SPI1);
+    spi_enable_rx_dma(SPI1);
+
     dma_enable_channel(DMA1, DMA_CHANNEL1);
     dma_enable_channel(DMA1, DMA_CHANNEL2);
 }
 
 static void write_register_blocking(uint8_t reg, uint8_t val)
 {
+    assert_idle();
     select_slave();
-    spi_send(SPI1, reg);
-    spi_send(SPI1, val);
+    spi_xfer(SPI1, reg);
+    spi_xfer(SPI1, val);
     deselect_slave();
+    assert_idle();
 }
 
 static void select_slave()
@@ -198,26 +216,13 @@ static void reselect_pulse()
     select_slave();
 }
 
+static void assert_data()
+{
+    cm3_assert(SPI1_SR & SPI_SR_RXNE);
+}
+
 static void assert_idle()
 {
     cm3_assert(SPI1_SR & SPI_SR_TXE);
     cm3_assert(!(SPI1_SR & SPI_SR_RXNE));
-}
-
-static void push_accels()
-{
-    if (buffer == NULL)
-    {
-        buffer_alloc(&buffer);
-        add_header(buffer->buf, ID_ACCEL_LOW_G);
-        buffer_pos = sizeof(struct data_header);
-    }
-
-    memcpy(buffer->buf + buffer_pos, read_buffer + 1, 6);
-    buffer_pos += 6;
-
-    if (buffer_pos > sd_block_size)
-    {
-        buffer_queue(&buffer);
-    }
 }

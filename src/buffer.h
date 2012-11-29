@@ -1,9 +1,21 @@
 #include "sd.h"
 
+#include <string.h>
+
+#include "header.h"
+
 struct buffer_list_item
 {
     char buf[sd_block_size];
     struct buffer_list_item *next;
+};
+
+struct buffer_simple_push
+{
+    struct buffer_list_item *buffer;
+    int pos;
+    size_t length;
+    enum sensor_id sensor;
 };
 
 /*
@@ -14,6 +26,10 @@ struct buffer_list_item
  *    'to be written queue'
  * If you change your mind, buffer_free can be used straight away after
  * _alloc.
+ *
+ * Simple push is for fixed length blobs of data: allocate a struct
+ * buffer_simple_push and set ->length; then call buffer_simple_push lots.
+ *
  *
  * To get data from the buffer to be written to the card
  *  - buffer_pop pops an item off the queue
@@ -28,3 +44,5 @@ void buffer_queue(struct buffer_list_item **item);
 void buffer_pop(struct buffer_list_item **item);
 void buffer_free(struct buffer_list_item **item);
 void buffer_unpop(struct buffer_list_item **item);
+
+void buffer_simple_push(struct buffer_simple_push *settings, const char *data);
