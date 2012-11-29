@@ -8,5 +8,5 @@ void add_header(char *buf, enum sensor_id sensor_id)
     memset(hdr, 0, sizeof(struct data_header));
     hdr->nonzero_value = 0xFF;
     hdr->sensor_id = sensor_id;
-    /* TODO hdr->clock 8 */
+    /* TODO hdr->clock */
 }

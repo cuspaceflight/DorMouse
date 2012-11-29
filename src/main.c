@@ -5,11 +5,13 @@
 #include "leds.h"
 #include "general_status.h"
 #include "accel_lowg.h"
+#include "baro.h"
 
 /* sd: DMA2:1, SDIO, GPIOC, GPIOD
  * leds: TIM2, GPIOA, GPIOB, GPIOC
  * accel_lowg: GPIOA, DMA1:1, DMA1:2, SPI1, TIM3
- * baro: GPIOB, SPI2, TIM4, DMA1:3, DMA1:4 */
+ * baro: GPIOB, SPI2, TIM4, DMA1:3, DMA1:4
+ * accel_highg: ADC1..3 TIM1 */
 
 /* accel_lowg: tim3_isr, spi1_isr, dma1_channel2_isr: priority 16 * 6 */
 /* baro: tim4_isr, dma1_channel4_isr: priority 16 * 2 */
@@ -32,14 +34,20 @@ int main()
     rcc_peripheral_enable_clock(&RCC_APB2ENR,
             RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN |
             RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN |
-            RCC_APB2ENR_AFIOEN | RCC_APB2ENR_SPI1EN);
+            RCC_APB2ENR_AFIOEN | RCC_APB2ENR_SPI1EN |
+            RCC_APB2ENR_ADC1EN);
+
+    /* Prescale ADC 72 / 8 = 9MHz */
+    rcc_set_adcpre(RCC_CFGR_ADCPRE_PCLK2_DIV8);
 
     buffer_init();
     leds_init();
     general_status_init();
     accel_lowg_init();
+    baro_init();
 
     accel_lowg_go();
+    baro_go();
 
     /* sd_main will do sd init stuff */
     sd_main();
