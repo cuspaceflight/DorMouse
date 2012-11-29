@@ -2,6 +2,8 @@
 
 #include "sd.h"
 #include "buffer.h"
+#include "leds.h"
+#include "general_status.h"
 
 /* SD Card: DMA2:1, SDIO, GPIOC, GPIOD
  * LEDs: TIM2, GPIOA, GPIOB, GPIOC */
@@ -18,9 +20,11 @@ int main()
             RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN |
             RCC_APB2ENR_AFIOEN);
 
-
     buffer_init();
+    leds_init();
+    general_status_init();
 
+    /* sd_main will do sd init stuff */
     sd_main();
     return 0;
 }

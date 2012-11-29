@@ -11,5 +11,6 @@ enum bad_thing
     BAD_THING_COUNT = 6
 };
 
+void general_status_init();
 void bad_thing_set(enum bad_thing what);
 void bad_thing_clear(enum bad_thing what);

@@ -23,7 +23,7 @@ static int toggle;
 static void set_two_colour_leds();
 static void set_charging_led();
 
-void leds_setup()
+void leds_init()
 {
     /* !COMPLETE pulled up */
     gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);

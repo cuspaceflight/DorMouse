@@ -15,5 +15,5 @@ enum led_colour
     LED_ORANGE = 0x3
 };
 
-void leds_setup();
+void leds_init();
 void leds_set(enum led_name which, enum led_colour a, enum led_colour b);
