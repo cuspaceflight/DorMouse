@@ -3,6 +3,15 @@
 #include <stdint.h>
 #include "../sd_lib/sd_lib.h"
 #include "buffer.h"
+#include "leds.h"
+
+/*
+ * LEDS:
+ *  green/green:  OK, IDLE
+ *  green/orange: OK, BUSY
+ *  red/green:    ERR, IDLE
+ *  red/orange:   ERR, BUSY
+ */
 
 static void fail_backoff(int status);
 static int find_unused_block(uint32_t *first_address);
@@ -19,21 +28,29 @@ void sd_main()
     int status = 0;
     uint32_t address = 0;
     struct buffer_list_item *item;
+    enum led_colour colour_a = LED_GREEN;
 
     sd_hw_setup();
 
     /* rawr, I'm a velociraptor */
 reset:
+    leds_set(LED_SD, colour_a, LED_ORANGE);
+
     status = sd_init();
     if (status != 0) goto bail;
 
     status = find_unused_block(&address);
     if (status != 0) goto bail;
 
+    leds_set(LED_SD, colour_a, LED_GREEN);
+
     while (1)
     {
         buffer_pop(&item);
+
+        leds_set(LED_SD, colour_a, LED_ORANGE);
         status = sd_write(address, item->buf, sd_block_size);
+        leds_set(LED_SD, colour_a, LED_GREEN);
 
         if (status != 0)
         {
@@ -48,6 +65,7 @@ reset:
     }
 
 bail:
+    colour_a = LED_RED;
     sd_reset();
     fail_backoff(status);
     goto reset;
