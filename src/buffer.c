@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "sd.h"
+#include "memory.h"
 
 #define block_count 100
 
@@ -20,12 +21,6 @@ struct buffer_list
 static struct buffer_list_item items[block_count];
 static struct buffer_list items_free, items_queue;
 static int overflow;
-
-/* We need to take care wrt. interrupts and memory barriers in this file. */
-#define disable_interrupts() asm volatile ("cpsid i")
-#define enable_interrupts()  asm volatile ("cpsie i")
-#define wait_for_interrupt() asm volatile ("wfi")
-#define memory_barrier()     asm volatile ("dmb" ::: "memory")
 
 static void list_pop_head(struct buffer_list *list,
         struct buffer_list_item **item);
@@ -71,7 +66,7 @@ void buffer_alloc(struct buffer_list_item **item)
     else
     {
         list_pop_head(&items_queue, item);
-        overflow = 1;
+        overflow++;
     }
 
     memory_barrier();

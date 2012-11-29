@@ -3,7 +3,6 @@
 #include <stdint.h>
 
 #include <libopencm3/stm32/f1/dma.h>
-#include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/nvic.h>
 #include <libopencm3/stm32/f1/gpio.h>
 
@@ -23,11 +22,6 @@ void sd_hw_setup()
     dma_set_memory_size(DMA2, DMA_CHANNEL1, DMA_CCR_MSIZE_32BIT);
     dma_set_priority(DMA2, DMA_CHANNEL1, DMA_CCR_PL_HIGH);
 
-    rcc_peripheral_enable_clock(&RCC_AHBENR,
-            RCC_AHBENR_SDIOEN | RCC_AHBENR_DMA2EN);
-    rcc_peripheral_enable_clock(&RCC_APB2ENR,
-            RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN);
-
     nvic_enable_irq(NVIC_SDIO_IRQ);
 }
 
@@ -42,7 +36,8 @@ uint8_t GPIO_ReadInputDataBit(uint32_t a, uint32_t b)
 
 void SD_LowLevel_DeInit_ocm3(void)
 {
-    gpio_set_mode(GPIOC, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, 0x3f00);
+    gpio_set_mode(GPIOC, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+           GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12 | GPIO13);
     gpio_set_mode(GPIOD, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO2);
 }
 
@@ -54,7 +49,8 @@ void SD_LowLevel_Init(void)
 
     /* SD Data 0..3 CLK; CMD */
     gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
-                    GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, 0x1f00);
+                    GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+                    GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12);
     gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_50_MHZ,
                     GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO2);
 }
@@ -81,6 +77,6 @@ void SD_LowLevel_DMA_RxConfig(uint32_t *BufferDST, uint32_t BufferSize)
 
 uint32_t SD_DMAEndOfTransferStatus(void)
 {
-    /* No error checking :-( ? */
+    /* TODO No error checking :-( ? */
     return dma_get_interrupt_flag(DMA2, DMA_CHANNEL1, DMA_TCIF);
 }
