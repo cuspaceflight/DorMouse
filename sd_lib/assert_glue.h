@@ -1,5 +1,2 @@
-#include "../src/panic.h"
-
-#ifndef NDEBUG
-#define assert_param(expr) ((expr) ? (void) 0 : panic())
-#endif
+#include <assert.h>
+#define assert_param(expr) assert(expr)
