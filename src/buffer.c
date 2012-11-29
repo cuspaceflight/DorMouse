@@ -1,7 +1,7 @@
 #include "buffer.h"
 
 #include <stdlib.h>
-#include <assert.h>
+#include <libopencm3/cm3/assert.h>
 #include "sd.h"
 #include "memory.h"
 
@@ -135,8 +135,8 @@ static void list_pop_head(struct buffer_list *list,
     /* Handle removing the last item */
     if (list->head == NULL)
     {
-        assert(list->tail == *item);
-        assert(list->length == 1);
+        cm3_assert(list->tail == *item);
+        cm3_assert(list->length == 1);
         list->tail = NULL;
     }
 
@@ -147,7 +147,7 @@ static void list_pop_head(struct buffer_list *list,
 static void list_push_head(struct buffer_list *list,
         struct buffer_list_item **item)
 {
-    assert((*item)->next == NULL);
+    cm3_assert((*item)->next == NULL);
 
     (*item)->next = list->head;
     list->head = *item;
@@ -161,7 +161,7 @@ static void list_push_head(struct buffer_list *list,
 static void list_push_tail(struct buffer_list *list,
         struct buffer_list_item **item)
 {
-    assert((*item)->next == NULL);
+    cm3_assert((*item)->next == NULL);
 
     list->tail->next = *item;
     list->tail = *item;

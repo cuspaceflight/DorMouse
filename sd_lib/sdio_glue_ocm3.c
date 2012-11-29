@@ -2,11 +2,10 @@
 
 #include <stdint.h>
 
+#include <libopencm3/cm3/assert.h>
 #include <libopencm3/stm32/f1/dma.h>
 #include <libopencm3/stm32/f1/nvic.h>
-#include <libopencm3/stm32/f1/gpio.h>
-
-#include "assert_glue.h"
+#include <libopencm3/stm32/gpio.h>
 
 /* Need to keep this separate from files that include libstm32 stuff,
  * since really bad things/conflicts happen otherwise */
@@ -27,7 +26,7 @@ void sd_hw_setup()
 
 uint8_t GPIO_ReadInputDataBit(uint32_t a, uint32_t b)
 {
-    assert_param(a == SD_DETECT_GPIO_PORT && b == SD_DETECT_PIN);
+    cm3_assert(a == SD_DETECT_GPIO_PORT && b == SD_DETECT_PIN);
     if (gpio_get(GPIOC, GPIO13))
         return 0;           /* Pulled high */
     else

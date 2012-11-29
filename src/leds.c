@@ -1,5 +1,9 @@
 #include "leds.h"
 
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/timer.h>
+#include <libopencm3/stm32/f1/nvic.h>
+
 #include "memory.h"
 
 /*
@@ -13,7 +17,7 @@
  * CHARGING  PB9
  */
 
-static struct led_colour states[LED_COUNT * 2];
+static enum led_colour states[LED_COUNT * 2];
 static int toggle;
 
 static void set_two_colour_leds();
@@ -69,19 +73,19 @@ void tim2_isr()
 static void set_two_colour_leds()
 {
     uint32_t val, mask;
-    struct led_colour *state;
+    enum led_colour *state;
    
     state = (toggle ? states : states + LED_COUNT);
 
     val = state[LED_GPS] << 3;
     mask = LED_ORANGE << 3;
-    gpio_set(GPIOC, i & mask);
-    gpio_clear(GPIOC, (~i) & mask);
+    gpio_set(GPIOC, val & mask);
+    gpio_clear(GPIOC, (~val) & mask);
 
     val = state[LED_SD] << 5;
     mask = LED_ORANGE << 5;
-    gpio_set(GPIOC, i & mask);
-    gpio_clear(GPIOC, (~i) & mask);
+    gpio_set(GPIOC, val & mask);
+    gpio_clear(GPIOC, (~val) & mask);
 
     if (state[LED_GENERAL] & LED_GREEN)
         gpio_set(GPIOC, GPIO7);
