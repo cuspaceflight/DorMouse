@@ -41,7 +41,7 @@ static struct buffer_simple_push simple_push =
 
 void accel_lowg_init()
 {
-    gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO6);
+    gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_PULL_UPDOWN, GPIO6);
     gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
             GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO5 | GPIO7);
     gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,

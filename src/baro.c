@@ -38,7 +38,7 @@ static char rxbuf[10];
 
 void baro_init()
 {
-    gpio_set_mode(GPIOB, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO14);
+    gpio_set_mode(GPIOB, GPIO_MODE_INPUT, GPIO_CNF_INPUT_PULL_UPDOWN, GPIO14);
     gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
             GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO13 | GPIO15);
     gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
@@ -122,6 +122,12 @@ void dma1_channel4_isr()
     rxbuf[2] = rxbuf[5];
     rxbuf[3] = rxbuf[7];
     buffer_simple_push(&simple_push, rxbuf);
+
+    /* Assume that all zeros is implausible: */
+    if ((rxbuf[0] | rxbuf[1] | rxbuf[2] | rxbuf[3]) == 0)
+        bad_thing_set(BARO_FAIL);
+    else
+        bad_thing_clear(BARO_FAIL);
 
     state = IDLE;
 }
