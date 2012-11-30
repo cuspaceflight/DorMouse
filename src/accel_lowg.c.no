@@ -12,7 +12,6 @@
 #include <libopencm3/stm32/f1/dma.h>
 
 #include "general_status.h"
-#include "buffer.h"
 #include "debug.h"
 #include "memory.h"
 
@@ -38,8 +37,6 @@ static volatile enum accel_lowg_read_state read_state;
 static char read_txstr[7] = { 0x32 | 0x80 | 0x40 };
 static char read_buffer[7];
 static int fifo_count;
-static struct buffer_simple_push simple_push =
-        { .length = 6, .sensor = ID_ACCEL_LOWG };
 
 void accel_lowg_init()
 {
@@ -170,7 +167,8 @@ void dma1_channel2_isr()
     dma_disable_channel(DMA1, DMA_CHANNEL1);
     dma_disable_channel(DMA1, DMA_CHANNEL2);
 
-    buffer_simple_push(&simple_push, read_buffer + 1);
+    debug("accel_lowg.c: %i %i %i %i %i %i\n", read_buffer[1], read_buffer[2], read_buffer[3],
+            read_buffer[4], read_buffer[5], read_buffer[6]);
     fifo_count--;
 
     if (fifo_count == 0)
