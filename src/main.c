@@ -73,7 +73,5 @@ int main()
     debug_send("accel_highg_go()\n");
     accel_highg_go();
 
-    /* sd_main will do sd init stuff */
-    debug_send("sd_main()\n");
-    return 0;
+    while(1);
 }
