@@ -13,6 +13,7 @@
 
 #include "general_status.h"
 #include "buffer.h"
+#include "debug.h"
 
 /* SS PA4, MOSI PA5, MISO PA6, SCK PA7 */
 
@@ -51,6 +52,7 @@ void accel_lowg_init()
     spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_8, SPI_CR1_CPOL,
             SPI_CR1_CPHA, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
     spi_enable_ss_output(SPI1);
+    spi_enable(SPI1);
 
     dma_set_peripheral_address(DMA1, DMA_CHANNEL1, SPI1_DR);
     dma_set_read_from_memory(DMA1, DMA_CHANNEL1);

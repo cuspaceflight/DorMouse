@@ -48,6 +48,7 @@ void baro_init()
     spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_8, SPI_CR1_CPOL,
             SPI_CR1_CPHA, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
     spi_enable_ss_output(SPI2);
+    spi_enable(SPI2);
 
     dma_set_peripheral_address(DMA1, DMA_CHANNEL3, SPI2_DR);
     dma_set_read_from_memory(DMA1, DMA_CHANNEL3);
