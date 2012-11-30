@@ -3,8 +3,8 @@
 BINARY = dormouse
 PREFIX = arm-none-eabi
 TOOLCHAIN_DIR = /opt/arm-toolchain
-OBJS = $(patsubst %.c,%.o,$(wildcard src/*.c)) \
-	   $(patsubst %.c,%.o,$(wildcard sd_lib/*.c))
+OBJS = $(patsubst %.c,%.o,$(wildcard src/*.c))
+#	   $(patsubst %.c,%.o,$(wildcard sd_lib/*.c))
 LDSCRIPT = src/dormouse.ld
 
 # CFLAGS += -O2 -DNDEBUG

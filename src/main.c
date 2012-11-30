@@ -1,10 +1,7 @@
 #include <libopencm3/stm32/f1/rcc.h>
 
-#include "sd.h"
-#include "buffer.h"
 #include "leds.h"
 #include "general_status.h"
-#include "accel_lowg.h"
 #include "baro.h"
 #include "debug.h"
 #include "accel_highg.h"
@@ -36,8 +33,6 @@
 
 /* TODO: check dma error flags! */
 
-void blah();
-
 int main()
 {
     rcc_clock_setup_in_hse_8mhz_out_72mhz();
@@ -62,48 +57,23 @@ int main()
     debug_init();
     debug_send("DorMouse\n");
 
-
-    debug_send("buffer_init()\n");
-    buffer_init();
-
-    blah(); blah(); blah();
-
     debug_send("leds_init()\n");
     leds_init();
     debug_send("general_status_init()\n");
     general_status_init();
-//    debug_send("accel_lowg_init()\n");
-//    accel_lowg_init();
-//    debug_send("baro_init()\n");
-//    baro_init();
+    debug_send("baro_init()\n");
+    baro_init();
     debug_send("accel_highg_init()\n");
     accel_highg_init();
 
     debug_send("starting\n");
 
-//    debug_send("accel_lowg_go()\n");
-//    accel_lowg_go();
-//    debug_send("baro_go()\n");
-//    baro_go();
+    debug_send("baro_go()\n");
+    baro_go();
     debug_send("accel_highg_go()\n");
     accel_highg_go();
 
     /* sd_main will do sd init stuff */
     debug_send("sd_main()\n");
-    sd_main();
     return 0;
 }
-
-void blah()
-{
-    struct buffer_list_item *buffer;
-    debug("allocate\n");
-    buffer_alloc(&buffer);
-    debug("copy\n");
-    strcpy(buffer->buf, "Hello World");
-    debug("write\n");
-    buffer_queue(&buffer);
-
-    debug("Enqueued hello world\n");
-}
-

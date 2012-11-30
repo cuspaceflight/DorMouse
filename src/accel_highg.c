@@ -1,6 +1,7 @@
 #include "accel_highg.h"
 
 #include <stdint.h>
+#include <string.h>
 
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/f1/adc.h>
@@ -8,8 +9,7 @@
 #include <libopencm3/stm32/f1/dma.h>
 #include <libopencm3/cm3/assert.h>
 
-#include "buffer.h"
-#include "header.h"
+#include "debug.h"
 
 /* ADC1: PC0 == ADC123_IN10
  * ADC2: PC1 == ADC123_IN11
@@ -28,7 +28,7 @@ static void dma_complete();
 static void dma_restart();
 
 static enum adc_state state;
-static struct buffer_list_item *buffer;
+static char buf[512];
 
 void accel_highg_init()
 {
@@ -125,26 +125,18 @@ void dma1_channel6_isr()
 
 static void dma_complete()
 {
-    buffer_queue(&buffer);
     dma_restart();
+
+    debug("adc stuff\n");
 }
 
 static void dma_restart()
 {
-    buffer_alloc(&buffer);
-    add_header(buffer->buf, ID_ACCEL_HIGHG);
-
-    cm3_assert(sizeof(struct data_header) == 12);
-    cm3_assert(sd_block_size == 512);
-
-    buffer->buf[510] = 0;
-    buffer->buf[511] = 0;
-
     dma_set_memory_address(DMA1, DMA_CHANNEL5,
-            (uint32_t) buffer->buf + 12);
+            (uint32_t) buf + 12);
     dma_set_number_of_data(DMA1, DMA_CHANNEL5, 83);
     dma_set_memory_address(DMA1, DMA_CHANNEL6,
-            (uint32_t) buffer->buf + 12 + 83 * 4);
+            (uint32_t) buf + 12 + 83 * 4);
     dma_set_number_of_data(DMA1, DMA_CHANNEL6, 83);
 
     dma_enable_channel(DMA1, DMA_CHANNEL5);

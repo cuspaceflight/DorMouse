@@ -10,7 +10,7 @@
 #include <libopencm3/stm32/f1/dma.h>
 
 #include "general_status.h"
-#include "buffer.h"
+#include "debug.h"
 
 /* SS PB12, MOSI PB15, MISO PB14, SCK PB13 */
 
@@ -29,8 +29,6 @@ static void assert_idle();
 
 /* read registers 0x00..0x03, then start a new conversion */
 static enum baro_state state;
-static struct buffer_simple_push simple_push =
-        { .length = 4, .sensor = ID_BARO };
 
 static char txstr[10] = { 0x80, 0x00, 0x81, 0x00, 0x82, 0x00, 0x83, 0x00,
                           0x24, 0x00 };
@@ -124,7 +122,8 @@ void dma1_channel4_isr()
     rxbuf[1] = rxbuf[3];
     rxbuf[2] = rxbuf[5];
     rxbuf[3] = rxbuf[7];
-    buffer_simple_push(&simple_push, rxbuf);
+    
+    debug("baro: %i %i %i %i\n", rxbuf[0], rxbuf[1], rxbuf[2], rxbuf[3]);
 
     /* Assume that all zeros is implausible: */
     if ((rxbuf[0] | rxbuf[1] | rxbuf[2] | rxbuf[3]) == 0)
