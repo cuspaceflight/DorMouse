@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+set -x
+
+arm-none-eabi-gcc -o dormouse.elf -O2 -g -Wall -Wextra -Werror -fno-common -mthumb -mcpu=cortex-m3 -msoft-float -MD -DSTM32F1 -DSTM32F10X_XL test.c -lopencm3_stm32f1 --static -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group -Tsrc/dormouse.ld -nostartfiles -Wl,--gc-sections -mthumb -mcpu=cortex-m3 -msoft-float -mfix-cortex-m3-ldrd -Wl,-Map,dormouse.map
+arm-none-eabi-objcopy -Obinary dormouse.elf dormouse.bin

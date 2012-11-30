@@ -3,10 +3,12 @@
 BINARY = dormouse
 PREFIX = arm-none-eabi
 TOOLCHAIN_DIR = /opt/arm-toolchain
-CFLAGS += -O2
 OBJS = $(patsubst %.c,%.o,$(wildcard src/*.c)) \
 	   $(patsubst %.c,%.o,$(wildcard sd_lib/*.c))
 LDSCRIPT = src/dormouse.ld
+
+# CFLAGS += -O2 -DNDEBUG
+CFLAGS += -DCM3_ASSERT_VERBOSE
 
 ##
 ## This file is part of the libopencm3 project.
@@ -56,7 +58,7 @@ OOCD_INTERFACE	?= flossjtag
 OOCD_BOARD		?= olimex_stm32_h103
 # Black magic probe specific variables
 # Set the BMP_PORT to a serial port and then BMP is used for flashing
-BMP_PORT        ?=
+BMP_PORT        ?= /dev/ttyACM0
 # texane/stlink can be used by uncommenting this...
 # or defining it in your own makefiles
 #STLINK_PORT ?= :4242
@@ -85,7 +87,7 @@ $(BINARY).sizes : $(BINARY).elf $(OBJS)
 	$(SIZE) $(BINARY).elf $(OBJS) > $(BINARY).sizes
 
 $(BINARY).elf : $(OBJS) $(LDSCRIPT)
-	$(LD) -o $@ $(OBJS) -lopencm3_stm32f1 $(LDFLAGS) \
+	$(LD) -o $@ $(OBJS) $(CFLAGS) -lopencm3_stm32f1 $(LDFLAGS) \
 		-Wl,-Map,$(BINARY).map
 
 sd_lib/stm32_eval_sdio_sd.o : sd_lib/stm32_eval_sdio_sd.c
@@ -133,7 +135,7 @@ else
 %.flash: %.elf
 	$(GDB) --batch \
 		   -ex 'target extended-remote $(BMP_PORT)' \
-		   -x $(TOOLCHAIN_DIR)/scripts/black_magic_probe_flash.scr \
+		   -x $(TOOLCHAIN_DIR)/arm-none-eabi/share/libopencm3/scripts/black_magic_probe_flash.scr \
 		   $(BINARY).elf
 endif
 else
