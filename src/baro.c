@@ -70,7 +70,7 @@ void baro_init()
     timer_set_mode(TIM4, TIM_CR1_CKD_CK_INT,
             TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
     /* 3200 / 16 = 200 Hz */
-    timer_set_prescaler(TIM4, 64);
+    timer_set_prescaler(TIM4, 32);
     timer_set_period(TIM4, 5625);
 
     nvic_set_priority(NVIC_TIM4_IRQ, 16 * 2);
@@ -86,11 +86,13 @@ void baro_go()
     state = IDLE;
 
     tim4_isr();
-    timer_enable_counter(TIM3);
+    timer_enable_counter(TIM4);
 }
 
 void tim4_isr()
 {
+    timer_clear_flag(TIM4, TIM_SR_UIF);
+
     cm3_assert(state == IDLE);
     state = READING;
 

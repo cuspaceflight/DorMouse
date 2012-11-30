@@ -24,6 +24,8 @@ void sd_hw_setup()
 uint8_t GPIO_ReadInputDataBit(uint32_t a, uint32_t b)
 {
     cm3_assert(a == SD_DETECT_GPIO_PORT && b == SD_DETECT_PIN);
+    a = a; b = b;
+
     if (gpio_get(GPIOC, GPIO13))
         return 0;           /* Pulled high */
     else

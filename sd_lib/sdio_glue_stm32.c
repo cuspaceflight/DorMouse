@@ -4,6 +4,7 @@
 #include "stm32_eval_sdio_sd.h"
 
 #include "../src/sd.h"
+#include "../src/debug.h"
 
 /* stm32_eval_sdio_sd.c whyyy :-( */
 extern SD_CardInfo SDCardInfo;
@@ -13,11 +14,13 @@ uint32_t sd_card_capacity;
 int sd_init()
 {
     SD_Error status = 0;
-   
+
+    debug_send("SD_Init()\n");
     status = SD_Init();
     if (status != SD_OK)
         return status;
 
+    debug_send("sd_card_capacity get\n");
     sd_card_capacity = SDCardInfo.CardCapacity;
 
     if (sd_card_capacity & (sd_block_size - 1))

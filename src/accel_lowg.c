@@ -14,6 +14,7 @@
 #include "general_status.h"
 #include "buffer.h"
 #include "debug.h"
+#include "memory.h"
 
 /* SS PA4, MOSI PA5, MISO PA6, SCK PA7 */
 
@@ -33,7 +34,7 @@ static void assert_idle();
 static void assert_data();
 static void dma_read_go();
 
-static enum accel_lowg_read_state read_state;
+static volatile enum accel_lowg_read_state read_state;
 static char read_txstr[7] = { 0x32 | 0x80 | 0x40 };
 static char read_buffer[7];
 static int fifo_count;
@@ -74,12 +75,12 @@ void accel_lowg_init()
     timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT,
             TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
     /* 3200 / 16 = 200 Hz */
-    timer_set_prescaler(TIM3, 64);
+    timer_set_prescaler(TIM3, 32);
     timer_set_period(TIM3, 5625);
 
     nvic_set_priority(NVIC_TIM3_IRQ, 16 * 6);
-    nvic_set_priority(NVIC_SPI1_IRQ, 16 * 6);
-    nvic_set_priority(NVIC_DMA1_CHANNEL2_IRQ, 16 * 6);
+    nvic_set_priority(NVIC_SPI1_IRQ, 16 * 5);
+    nvic_set_priority(NVIC_DMA1_CHANNEL2_IRQ, 16 * 4);
     nvic_enable_irq(NVIC_TIM3_IRQ);
     nvic_enable_irq(NVIC_SPI1_IRQ);
     nvic_enable_irq(NVIC_DMA1_CHANNEL2_IRQ);
@@ -105,6 +106,10 @@ void accel_lowg_go()
 
 void tim3_isr()
 {
+    timer_clear_flag(TIM3, TIM_SR_UIF);
+
+    gpio_toggle(GPIOA, GPIO4);
+
     cm3_assert(read_state == ALG_RS_IDLE);
     assert_idle();
 
@@ -117,6 +122,7 @@ void tim3_isr()
 
 void spi1_isr()
 {
+    debug("spi1 isr. read_state = %i\n", read_state);
     cm3_assert(read_state == ALG_RS_FIFO);
 
     assert_data();
@@ -148,6 +154,7 @@ void spi1_isr()
 
 void dma1_channel2_isr()
 {
+    debug("dma1_channel2 isr. read_state = %i\n", read_state);
     cm3_assert(dma_get_interrupt_flag(DMA1, DMA_CHANNEL1, DMA_TCIF));
     assert_idle();
 
@@ -155,6 +162,7 @@ void dma1_channel2_isr()
     dma_disable_channel(DMA1, DMA_CHANNEL2);
 
     buffer_simple_push(&simple_push, read_buffer + 1);
+    fifo_count--;
 
     if (fifo_count == 0)
     {

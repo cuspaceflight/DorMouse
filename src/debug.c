@@ -12,7 +12,7 @@
 
 char debug_buf[512];
 
-void debug_init()
+void _debug_init()
 {
     gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
               GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO9);
@@ -29,7 +29,7 @@ void debug_init()
     usart_enable(USART1);
 }
 
-void debug_send(const char *data)
+void _debug_send(const char *data)
 {
     while (*data)
     {

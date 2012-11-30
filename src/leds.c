@@ -47,7 +47,7 @@ void leds_init()
     /* 2Hz */
     timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT,
             TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-    timer_set_prescaler(TIM2, 1280);
+    timer_set_prescaler(TIM2, 640);
     timer_set_period(TIM2, 28125);
 
     timer_enable_counter(TIM2);
