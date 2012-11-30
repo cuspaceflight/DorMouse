@@ -11,6 +11,12 @@
 
 #include <libopencm3/cm3/assert.h>
 
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/f1/flash.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/dma.h>
+#include <libopencm3/stm32/usart.h>
+
 /* sd: DMA2:1, SDIO, GPIOC, GPIOD
  * leds: TIM2, GPIOA, GPIOB, GPIOC
  * accel_lowg: GPIOA, DMA1:1, DMA1:2, SPI1, TIM3
@@ -29,6 +35,8 @@
  * debug: DMA2:2 - high priority */
 
 /* TODO: check dma error flags! */
+
+void blah();
 
 int main()
 {
@@ -57,23 +65,26 @@ int main()
 
     debug_send("buffer_init()\n");
     buffer_init();
+
+    blah(); blah(); blah();
+
     debug_send("leds_init()\n");
     leds_init();
     debug_send("general_status_init()\n");
     general_status_init();
-    debug_send("accel_lowg_init()\n");
-    accel_lowg_init();
-    debug_send("baro_init()\n");
-    baro_init();
+//    debug_send("accel_lowg_init()\n");
+//    accel_lowg_init();
+//    debug_send("baro_init()\n");
+//    baro_init();
     debug_send("accel_highg_init()\n");
     accel_highg_init();
 
     debug_send("starting\n");
 
-    debug_send("accel_lowg_go()\n");
-    accel_lowg_go();
-    debug_send("baro_go()\n");
-    baro_go();
+//    debug_send("accel_lowg_go()\n");
+//    accel_lowg_go();
+//    debug_send("baro_go()\n");
+//    baro_go();
     debug_send("accel_highg_go()\n");
     accel_highg_go();
 
@@ -82,3 +93,17 @@ int main()
     sd_main();
     return 0;
 }
+
+void blah()
+{
+    struct buffer_list_item *buffer;
+    debug("allocate\n");
+    buffer_alloc(&buffer);
+    debug("copy\n");
+    strcpy(buffer->buf, "Hello World");
+    debug("write\n");
+    buffer_queue(&buffer);
+
+    debug("Enqueued hello world\n");
+}
+

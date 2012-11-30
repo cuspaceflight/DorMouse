@@ -12,6 +12,7 @@
 
 void sd_hw_setup()
 {
+#ifdef SD_DMA_MODE
     dma_set_peripheral_address(DMA2, DMA_CHANNEL1, (uint32_t) 0x40005410);
     dma_enable_memory_increment_mode(DMA2, DMA_CHANNEL1);
     dma_set_peripheral_size(DMA2, DMA_CHANNEL1, DMA_CCR_PSIZE_32BIT);
@@ -19,6 +20,7 @@ void sd_hw_setup()
     dma_set_priority(DMA2, DMA_CHANNEL1, DMA_CCR_PL_HIGH);
 
     nvic_enable_irq(NVIC_SDIO_IRQ);
+#endif
 }
 
 uint8_t GPIO_ReadInputDataBit(uint32_t a, uint32_t b)
@@ -55,26 +57,42 @@ void SD_LowLevel_Init(void)
 
 void SD_LowLevel_DMA_TxConfig(uint32_t *BufferSRC, uint32_t BufferSize)
 {
+#ifdef SD_DMA_MODE
     dma_disable_channel(DMA2, DMA_CHANNEL1);
     dma_clear_interrupt_flags(DMA2, DMA_CHANNEL1, 0xf);
     dma_set_read_from_memory(DMA2, DMA_CHANNEL1);
     dma_set_memory_address(DMA2, DMA_CHANNEL1, (uint32_t) BufferSRC);
     dma_set_number_of_data(DMA2, DMA_CHANNEL1, BufferSize / 4);
     dma_enable_channel(DMA2, DMA_CHANNEL1);
+#else
+    BufferSRC = BufferSRC;
+    BufferSize = BufferSize;
+#endif
 }
 
 void SD_LowLevel_DMA_RxConfig(uint32_t *BufferDST, uint32_t BufferSize)
 {
+#ifdef SD_DMA_MODE
+    dma_channel_reset(DMA2, DMA_CHANNEL1);
     dma_disable_channel(DMA2, DMA_CHANNEL1);
+
     dma_clear_interrupt_flags(DMA2, DMA_CHANNEL1, 0xf);
     dma_set_read_from_peripheral(DMA2, DMA_CHANNEL1);
     dma_set_memory_address(DMA2, DMA_CHANNEL1, (uint32_t) BufferDST);
     dma_set_number_of_data(DMA2, DMA_CHANNEL1, BufferSize / 4);
     dma_enable_channel(DMA2, DMA_CHANNEL1);
+#else
+    BufferDST = BufferDST;
+    BufferSize = BufferSize;
+#endif
 }
 
 uint32_t SD_DMAEndOfTransferStatus(void)
 {
+#ifdef SD_DMA_MODE
     /* TODO No error checking :-( ? */
     return dma_get_interrupt_flag(DMA2, DMA_CHANNEL1, DMA_TCIF);
+#else
+    return 1;
+#endif
 }

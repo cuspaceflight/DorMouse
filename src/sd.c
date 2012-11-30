@@ -133,7 +133,9 @@ static int is_block_used(uint32_t address, int *is_used)
     int status;
 
     /* Is this block used? First header byte will be nonzero */
+    debug("sd_read: %li\n", address);
     status = sd_read(address, buf, sd_block_size);
+    if (status == 2) { *is_used = 0; return 0; }
     if (status != 0) return status;
 
     *is_used = (buf[0] != 0);

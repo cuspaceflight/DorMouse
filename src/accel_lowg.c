@@ -55,19 +55,21 @@ void accel_lowg_init()
     spi_enable_ss_output(SPI1);
     spi_enable(SPI1);
 
-    dma_set_peripheral_address(DMA1, DMA_CHANNEL1, SPI1_DR);
+    dma_set_peripheral_address(DMA1, DMA_CHANNEL1, (uint32_t) &SPI1_DR);
     dma_set_read_from_memory(DMA1, DMA_CHANNEL1);
     dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL1);
     dma_set_peripheral_size(DMA1, DMA_CHANNEL1, DMA_CCR_PSIZE_8BIT);
     dma_set_memory_size(DMA1, DMA_CHANNEL1, DMA_CCR_MSIZE_8BIT);
     dma_set_priority(DMA1, DMA_CHANNEL1, DMA_CCR_PL_HIGH);
 
-    dma_set_peripheral_address(DMA1, DMA_CHANNEL2, SPI1_DR);
+    dma_set_peripheral_address(DMA1, DMA_CHANNEL2, (uint32_t) &SPI1_DR);
     dma_set_read_from_peripheral(DMA1, DMA_CHANNEL2);
     dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL2);
     dma_set_peripheral_size(DMA1, DMA_CHANNEL2, DMA_CCR_PSIZE_8BIT);
     dma_set_memory_size(DMA1, DMA_CHANNEL2, DMA_CCR_MSIZE_8BIT);
     dma_set_priority(DMA1, DMA_CHANNEL2, DMA_CCR_PL_HIGH);
+
+    dma_enable_transfer_complete_interrupt(DMA1, DMA_CHANNEL1);
     dma_enable_transfer_complete_interrupt(DMA1, DMA_CHANNEL2);
 
     timer_reset(TIM3);
@@ -106,9 +108,9 @@ void accel_lowg_go()
 
 void tim3_isr()
 {
-    timer_clear_flag(TIM3, TIM_SR_UIF);
+    debug("tim3 isr. read_state = %i\n", read_state);
 
-    gpio_toggle(GPIOA, GPIO4);
+    timer_clear_flag(TIM3, TIM_SR_UIF);
 
     cm3_assert(read_state == ALG_RS_IDLE);
     assert_idle();
@@ -128,6 +130,8 @@ void spi1_isr()
     assert_data();
     fifo_count = (spi_read(SPI1) & ((1 << 6) - 1));
     spi_enable_rx_buffer_not_empty_interrupt(SPI1);
+
+    debug("fifo_count = %i\n", fifo_count);
 
     if (fifo_count == 0)
     {
@@ -150,6 +154,11 @@ void spi1_isr()
 
         dma_read_go();
     }
+}
+
+void dma1_channel1_isr()
+{
+    debug("channel 1 completed\n");
 }
 
 void dma1_channel2_isr()

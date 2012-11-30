@@ -186,8 +186,17 @@ static void list_push_tail(struct buffer_list *list,
 {
     cm3_assert((*item)->next == NULL);
 
-    list->tail->next = *item;
-    list->tail = *item;
+    if (list->tail != NULL)
+    {
+        list->tail->next = *item;
+        list->tail = *item;
+    }
+    else
+    {
+        cm3_assert(list->head == NULL);
+        cm3_assert(list->length == 0);
+        list->head = list->tail = *item;
+    }
 
     *item = NULL;
 

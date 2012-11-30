@@ -21,7 +21,7 @@ uint8_t GPIO_ReadInputDataBit(uint32_t a, uint32_t b);
 
 /*  Used to configure the SDIO peripheral */
 #define SDIO_INIT_CLK_DIV      178 /* 72/(178+2) = 0.4MHz (the maximum) */
-#define SDIO_TRANSFER_CLK_DIV  0   /* max speed: 72/(0+2) = 18 MHz */
+#define SDIO_TRANSFER_CLK_DIV  64  /* max speed: 72/(0+2) = 18 MHz */
 
 /*  Call setup and teardown routines */
 void SD_LowLevel_Init(void);

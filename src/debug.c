@@ -6,8 +6,6 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
 
-#include "buffer.h"
-#include "leds.h"
 #include "memory.h"
 
 char debug_buf[512];

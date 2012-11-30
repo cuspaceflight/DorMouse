@@ -43,14 +43,17 @@ int sd_read(uint32_t address, char *buf, uint16_t size)
     SD_Error status = SD_OK;
     SDTransferState transfer_state = SD_TRANSFER_BUSY;
 
+    debug("SD_ReadBlock()\n");
     status = SD_ReadBlock((uint8_t *) buf, address, size);
     if (status != SD_OK)
         goto bail;
 
+    debug("SD_WaitReadOperation()\n");
     status = SD_WaitReadOperation();
     if (status != SD_OK)
         goto bail;
 
+    debug("wait for SD_GetStatus() == SD_TRANSFER_OK\n");
     while (transfer_state != SD_TRANSFER_OK)
         transfer_state = SD_GetStatus();
 
